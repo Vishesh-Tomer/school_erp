@@ -13,10 +13,16 @@
   "functions": {
     "api/index.js": {
       "memory": 1024,
-      "maxDuration": 30
+      "maxDuration": 60
     }
   },
   "env": {
     "NODE_ENV": "production"
+  },
+  "build": {
+    "env": {
+      "SHARP_IGNORE_GLOBALLY": "true",
+      "NODE_ENV": "production"
+    }
   }
 }

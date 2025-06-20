@@ -2,7 +2,14 @@ const cloudinary = require('cloudinary').v2;
 const config = require('../config/config');
 const ApiError = require('../utils/ApiError');
 const httpStatus = require('http-status');
-const sharp = require('sharp');
+const logger = require('../config/logger');
+
+let sharp;
+try {
+  sharp = require('sharp');
+} catch (error) {
+  logger.error('Failed to load sharp module:', error.message);
+}
 
 cloudinary.config({
   cloud_name: config.cloudinary.cloudName,
@@ -20,10 +27,19 @@ const uploadProfile = async (file, path) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'File size must be less than 5MB');
   }
 
-  const compressedBuffer = await sharp(file.buffer)
-    .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
-    .jpeg({ quality: 80 })
-    .toBuffer();
+  let buffer = file.buffer;
+  if (sharp) {
+    try {
+      buffer = await sharp(file.buffer)
+        .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
+        .jpeg({ quality: 80 })
+        .toBuffer();
+    } catch (error) {
+      logger.warn('Sharp processing failed, using original buffer:', error.message);
+    }
+  } else {
+    logger.warn('Sharp module unavailable, skipping image processing');
+  }
 
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
@@ -40,7 +56,7 @@ const uploadProfile = async (file, path) => {
         }
       }
     );
-    uploadStream.end(compressedBuffer);
+    uploadStream.end(buffer);
   });
 };
 
