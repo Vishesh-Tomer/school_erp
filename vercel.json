@@ -17,7 +17,8 @@
     }
   },
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "SHARP_IGNORE_GLOBALLY": "true"
   },
   "build": {
     "env": {
