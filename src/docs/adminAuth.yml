@@ -1,0 +1,475 @@
+paths:
+  /admin/register:
+    post:
+      summary: Register a new admin
+      tags:
+        - Admin Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: admin@schoolerp.com
+                password:
+                  type: string
+                  example: Admin123!
+                name:
+                  type: string
+                  example: John Doe
+                role:
+                  type: string
+                  example: admin
+                schoolId:
+                  type: string
+                  example: 5ebac534954b54139806c112
+      responses:
+        '201':
+          description: Admin registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/login:
+    post:
+      summary: Admin login
+      tags:
+        - Admin Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: admin@schoolerp.com
+                password:
+                  type: string
+                  example: Admin123!
+                twoFactorCode:
+                  type: string
+                  example: 123456
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/logout:
+    post:
+      summary: Admin logout
+      tags:
+        - Admin Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: Successful logout
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /admin/refresh-tokens:
+    post:
+      summary: Refresh auth tokens
+      tags:
+        - Admin Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: Tokens refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokens'
+
+  /admin/forgot-password:
+    post:
+      summary: Request password reset
+      tags:
+        - Admin Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: admin@schoolerp.com
+      responses:
+        '200':
+          description: Reset link sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /admin/reset-password:
+    post:
+      summary: Reset password
+      tags:
+        - Admin Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  example: NewAdmin123!
+      parameters:
+        - in: query
+          name: token
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /admin/change-password:
+    post:
+      summary: Change password
+      tags:
+        - Admin Authentication
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                oldPassword:
+                  type: string
+                  example: Admin123!
+                newPassword:
+                  type: string
+                  example: NewAdmin123!
+      responses:
+        '200':
+          description: Password changed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /admin/setup-2fa:
+    post:
+      summary: Setup 2FA
+      tags:
+        - Admin Authentication
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 2FA setup initiated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TwoFactorResponse'
+
+  /admin/verify-2fa:
+    post:
+      summary: Verify 2FA code
+      tags:
+        - Admin Authentication
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: 123456
+      responses:
+        '200':
+          description: 2FA verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /admin/profile:
+    get:
+      summary: Get logged-in admin details
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Admin details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+    patch:
+      summary: Update admin profile
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                profilePhoto:
+                  type: string
+                  format: binary
+                name:
+                  type: string
+                  example: John Doe
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /admin/admins:
+    post:
+      summary: Create a new admin
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Admin'
+      responses:
+        '201':
+          description: Admin created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+    get:
+      summary: List all admins
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            type: number
+        - in: query
+          name: page
+          schema:
+            type: number
+        - in: query
+          name: searchBy
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            type: number
+      responses:
+        '200':
+          description: List of admins
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /admin/admins/{adminId}:
+    get:
+      summary: Get admin by ID
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: adminId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Admin details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+    patch:
+      summary: Update admin
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: adminId
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Admin'
+      responses:
+        '200':
+          description: Admin updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+    delete:
+      summary: Delete admin
+      tags:
+        - Admin Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: adminId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Admin deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+components:
+  schemas:
+    AuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            admin:
+              $ref: '#/components/schemas/Admin'
+            tokens:
+              $ref: '#/components/schemas/AuthTokens'
+        message:
+          type: string
+        code:
+          type: number
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+        message:
+          type: string
+        code:
+          type: number
+    TwoFactorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            qrCodeUrl:
+              type: string
+            secret:
+              type: string
+        message:
+          type: string
+        code:
+          type: number
+    AuthTokens:
+      type: object
+      properties:
+        access:
+          type: object
+          properties:
+            token:
+              type: string
+            expires:
+              type: string
+              format: date-time
+        refresh:
+          type: object
+          properties:
+            token:
+              type: string
+            expires:
+              type: string
+              format: date-time
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        code:
+          type: number

@@ -1,0 +1,14 @@
+2025-06-18T12:40:26.298Z error: MongoDB connection attempt 1 failed: Protocol and host list are required in "mongodb+srv://kidurat:GarimaVishesh@"
+2025-06-18T12:40:31.302Z error: MongoDB connection attempt 2 failed: Protocol and host list are required in "mongodb+srv://kidurat:GarimaVishesh@"
+2025-06-18T12:40:36.303Z error: Unexpected error: Operation `admins.countDocuments()` buffering timed out after 10000ms
+2025-06-18T12:47:04.097Z error: MongoDB connection attempt 1 failed: Protocol and host list are required in "mongodb+srv://kidurat:GarimaVishesh@"
+2025-06-18T12:47:09.101Z error: MongoDB connection attempt 2 failed: Protocol and host list are required in "mongodb+srv://kidurat:GarimaVishesh@"
+2025-06-18T12:47:14.108Z error: Unexpected error: Operation `admins.countDocuments()` buffering timed out after 10000ms
+2025-06-18T12:58:02.189Z error: MongoDB connection attempt 1 failed: Protocol and host list are required in "mongodb+srv://kidurat:GarimaVishesh@"
+2025-06-18T12:58:07.191Z error: MongoDB connection attempt 2 failed: Protocol and host list are required in "mongodb+srv://kidurat:GarimaVishesh@"
+2025-06-18T12:58:12.194Z error: Unexpected error: Operation `admins.countDocuments()` buffering timed out after 10000ms
+2025-06-18T13:02:24.792Z error: MongoDB connection attempt 1 failed: Protocol and host list are required in "mongodb+srv://kidurat:GarimaVishesh@"
+2025-06-18T13:02:29.795Z error: MongoDB connection attempt 2 failed: Protocol and host list are required in "mongodb+srv://kidurat:GarimaVishesh@"
+2025-06-18T13:02:34.800Z error: Unexpected error: Operation `admins.countDocuments()` buffering timed out after 10000ms
+2025-06-18T13:08:56.884Z error: ::1 - GET /api-docs 404 - 17.012 ms - message: Not found
+2025-06-18T13:08:56.927Z error: ::1 - GET /favicon.ico 404 - 2.152 ms - message: Not found

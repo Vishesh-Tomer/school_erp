@@ -1,0 +1,59 @@
+{
+  "name": "school-erp-backend",
+  "version": "1.0.0",
+  "description": "School ERP Backend",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "NODE_ENV=development nodemon src/index.js",
+    "test": "NODE_ENV=test jest --detectOpenHandles --forceExit"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^1.41.0",
+    "compression": "^1.7.4",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "csurf": "^1.11.0",
+    "dotenv": "^16.4.5",
+    "dotenv-flow": "^4.1.0",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-prometheus-middleware": "^1.2.0",
+    "express-rate-limit": "^6.7.0",
+    "express-validator": "^7.2.1",
+    "express-xss-sanitizer": "^1.2.0",
+    "helmet": "^6.0.1",
+    "http-status": "^1.6.2",
+    "joi": "^17.9.1",
+    "jsonwebtoken": "^9.0.0",
+    "moment": "^2.29.4",
+    "mongodb": "^6.17.0",
+    "mongoose": "^7.0.3",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "node-cache": "^5.1.2",
+    "nodemailer": "^6.9.1",
+    "passport": "^0.6.0",
+    "passport-jwt": "^4.0.1",
+    "qrcode": "^1.5.1",
+    "rate-limiter-flexible": "^7.1.1",
+    "redis": "^5.5.6",
+    "sharp": "^0.32.0",
+    "speakeasy": "^2.0.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^4.6.2",
+    "uuid": "^11.1.0",
+    "validator": "^13.9.0",
+    "winston": "^3.8.2",
+    "zxcvbn": "^4.4.2"
+  },
+  "devDependencies": {
+    "jest": "^29.5.0",
+    "nodemon": "^2.0.22",
+    "supertest": "^6.3.3"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

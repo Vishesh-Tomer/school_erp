@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "src": "/v1/docs/(.*)",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/v1/(.*)",
+      "dest": "/api/index.js"
+    }
+  ],
+  "functions": {
+    "api/index.js": {
+      "memory": 1024,
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

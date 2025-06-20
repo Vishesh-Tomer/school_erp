@@ -1,0 +1,113 @@
+components:
+  schemas:
+    Admin:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role:
+          type: string
+          enum: [superadmin, admin]
+        phone:
+          type: string
+        address:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        city:
+          type: string
+        zipcode:
+          type: string
+        profilePhoto:
+          type: string
+      example:
+        id: 5ebac534954b54139806c112
+        email: admin@example.com
+        name: John Doe
+        role: admin
+        phone: "+1234567890"
+        address: "123 School St"
+        state: "CA"
+        country: "USA"
+        city: "Los Angeles"
+        zipcode: "90001"
+        profilePhoto: "profile/admin.jpg"
+
+    Token:
+      type: object
+      properties:
+        token:
+          type: string
+        expires:
+          type: string
+          format: date-time
+      example:
+        token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        expires: 2025-06-09T12:00:00.000Z
+
+    AuthTokens:
+      type: object
+      properties:
+        access:
+          $ref: '#/components/schemas/Token'
+        refresh:
+          $ref: '#/components/schemas/Token'
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: number
+        message:
+          type: string
+
+  responses:
+    DuplicateEmail:
+      description: Email already taken
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 400
+            message: Email already taken
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 401
+            message: Please authenticate
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 403
+            message: Forbidden
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 404
+            message: Not found
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

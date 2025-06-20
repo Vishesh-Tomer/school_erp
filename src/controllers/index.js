@@ -1,0 +1,1 @@
+module.exports.adminAuthController = require('./adminAuth.controller');

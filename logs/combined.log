@@ -1,0 +1,26 @@
+2025-06-18T12:40:26.298Z error: MongoDB connection attempt 1 failed: Protocol and host list are required in "mongodb+srv://kidurat:GarimaVishesh@"
+2025-06-18T12:40:30.049Z warn: Unable to connect to email server: Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to
+535 5.7.8  https://support.google.com/mail/?p=BadCredentials d2e1a72fcca58-748900b09f1sm10831889b3a.113 - gsmtp
+2025-06-18T12:40:31.302Z error: MongoDB connection attempt 2 failed: Protocol and host list are required in "mongodb+srv://kidurat:GarimaVishesh@"
+2025-06-18T12:40:36.303Z error: Unexpected error: Operation `admins.countDocuments()` buffering timed out after 10000ms
+2025-06-18T12:47:04.097Z error: MongoDB connection attempt 1 failed: Protocol and host list are required in "mongodb+srv://kidurat:GarimaVishesh@"
+2025-06-18T12:47:07.989Z warn: Unable to connect to email server: Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to
+535 5.7.8  https://support.google.com/mail/?p=BadCredentials 41be03b00d2f7-b31d731ab20sm34350a12.77 - gsmtp
+2025-06-18T12:47:09.101Z error: MongoDB connection attempt 2 failed: Protocol and host list are required in "mongodb+srv://kidurat:GarimaVishesh@"
+2025-06-18T12:47:14.108Z error: Unexpected error: Operation `admins.countDocuments()` buffering timed out after 10000ms
+2025-06-18T12:58:02.189Z error: MongoDB connection attempt 1 failed: Protocol and host list are required in "mongodb+srv://kidurat:GarimaVishesh@"
+2025-06-18T12:58:05.830Z warn: Unable to connect to email server: Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to
+535 5.7.8  https://support.google.com/mail/?p=BadCredentials d9443c01a7336-2365de78181sm99663015ad.122 - gsmtp
+2025-06-18T12:58:07.191Z error: MongoDB connection attempt 2 failed: Protocol and host list are required in "mongodb+srv://kidurat:GarimaVishesh@"
+2025-06-18T12:58:12.194Z error: Unexpected error: Operation `admins.countDocuments()` buffering timed out after 10000ms
+2025-06-18T13:02:24.792Z error: MongoDB connection attempt 1 failed: Protocol and host list are required in "mongodb+srv://kidurat:GarimaVishesh@"
+2025-06-18T13:02:28.558Z warn: Unable to connect to email server: Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to
+535 5.7.8  https://support.google.com/mail/?p=BadCredentials 41be03b00d2f7-b31c70256b1sm1763530a12.27 - gsmtp
+2025-06-18T13:02:29.795Z error: MongoDB connection attempt 2 failed: Protocol and host list are required in "mongodb+srv://kidurat:GarimaVishesh@"
+2025-06-18T13:02:34.800Z error: Unexpected error: Operation `admins.countDocuments()` buffering timed out after 10000ms
+2025-06-18T13:06:25.738Z info: Connected to MongoDB
+2025-06-18T13:06:25.753Z info: Server listening on port 3000
+2025-06-18T13:06:28.695Z warn: Unable to connect to email server: Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to
+535 5.7.8  https://support.google.com/mail/?p=BadCredentials d2e1a72fcca58-748900d29a2sm11218742b3a.175 - gsmtp
+2025-06-18T13:08:56.884Z error: ::1 - GET /api-docs 404 - 17.012 ms - message: Not found
+2025-06-18T13:08:56.927Z error: ::1 - GET /favicon.ico 404 - 2.152 ms - message: Not found
