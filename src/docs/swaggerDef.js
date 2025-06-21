@@ -16,6 +16,15 @@ const swaggerDef = {
       url: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/v1` : `http://localhost:${config.port}/v1`,
     },
   ],
+  components: {
+    securitySchemes: {
+      basicAuth: {
+        type: 'http',
+        scheme: 'basic',
+      },
+    },
+  },
+  security: [{ basicAuth: [] }], // Apply Basic Auth globally
 };
 
 module.exports = swaggerDef;

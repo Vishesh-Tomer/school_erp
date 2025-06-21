@@ -105,9 +105,11 @@ components:
           example:
             code: 404
             message: Not found
-
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+    securitySchemes:
+        bearerAuth:
+          type: http
+          scheme: bearer
+          bearerFormat: JWT
+        basicAuth:
+          type: http
+          scheme: basic

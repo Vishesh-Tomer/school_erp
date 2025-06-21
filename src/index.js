@@ -2,11 +2,12 @@ const mongoose = require('mongoose');
 const logger = require('./config/logger');
 const config = require('./config/config');
 const app = require('./app');
+const https = require('https');
+const fs = require('fs');
 
 let server;
 
-const connectDB = async (retries = 5, delay = 3000) => {
-  mongoose.set('bufferCommands', false); // Disable buffering globally
+const connectDB = async (retries = 10, delay = 5000) => {
   let attempt = 1;
   while (attempt <= retries) {
     try {
@@ -14,23 +15,23 @@ const connectDB = async (retries = 5, delay = 3000) => {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         serverSelectionTimeoutMS: 5000,
-        maxPoolSize: 5,
+        maxPoolSize: 10,
         connectTimeoutMS: 10000,
-        socketTimeoutMS: 20000,
+        socketTimeoutMS: 45000,
+        bufferCommands: false,
         retryWrites: true,
         retryReads: true,
-        autoIndex: config.env !== 'production', // Disable autoIndex in production
       });
-      logger.info(`MongoDB connected after ${attempt} attempt(s)`);
-      return true;
+      logger.info(`MongoDB Connected after ${attempt} attempt(s)`);
+      return;
     } catch (err) {
       logger.error(`MongoDB Connection Attempt ${attempt} Failed: ${err.message}`);
       if (attempt === retries) {
         logger.error('Max retries reached. Exiting...');
-        throw err;
+        process.exit(1);
       }
-      await new Promise(resolve => setTimeout(resolve, delay));
-      attempt++;
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      attempt += 1;
     }
   }
 };
@@ -38,46 +39,50 @@ const connectDB = async (retries = 5, delay = 3000) => {
 const startServer = async () => {
   try {
     await connectDB();
-    server = app.listen(config.port, () => {
-      logger.info(`Listening on port ${config.port}`);
-    });
+    if (process.env.NODE_ENV === 'production' && process.env.VERCEL) {
+      server = app.listen(config.port, () => {
+        logger.info(`Listening to port ${config.port}`);
+      });
+    } else {
+      // Use HTTPS locally for testing
+      const options = {
+        key: fs.readFileSync('key.pem'),
+        cert: fs.readFileSync('cert.pem'),
+      };
+      server = https.createServer(options, app).listen(config.port, () => {
+        logger.info(`Listening on HTTPS port ${config.port}`);
+      });
+    }
   } catch (err) {
     logger.error(`Failed to start server: ${err.message}`);
     process.exit(1);
   }
 };
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
-  res.status(200).json({ status: 'OK', db: dbStatus, uptime: process.uptime() });
-});
-
 startServer();
 
-const exitHandler = async () => {
+const exitHandler = () => {
   if (server) {
-    server.close(async () => {
+    server.close(() => {
       logger.info('Server closed');
-      await mongoose.connection.close();
-      logger.info('MongoDB connection closed');
       process.exit(1);
     });
   } else {
-    await mongoose.connection.close();
     process.exit(1);
   }
 };
 
-const unexpectedErrorHandler = async (error) => {
+const unexpectedErrorHandler = (error) => {
   logger.error(`Unexpected error: ${error.message}`);
-  await exitHandler();
+  exitHandler();
 };
 
 process.on('uncaughtException', unexpectedErrorHandler);
 process.on('unhandledRejection', unexpectedErrorHandler);
 
-process.on('SIGTERM', async () => {
+process.on('SIGTERM', () => {
   logger.info('SIGTERM received');
-  await exitHandler();
+  if (server) {
+    server.close();
+  }
 });
