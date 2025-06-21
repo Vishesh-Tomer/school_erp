@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const { toJSON, paginate } = require('./plugins');
+const logger = require('../config/logger'); // Add import
 
 const adminSchema = mongoose.Schema(
   {
@@ -65,7 +66,7 @@ const adminSchema = mongoose.Schema(
     },
     status: {
       type: Number,
-      default: 1, // 0: Inactive, // 1: Active
+      default: 1,
       index: true,
     },
     isDeleted: {
@@ -108,26 +109,37 @@ adminSchema.methods.isPasswordMatch = async function (password) {
 
 adminSchema.pre('save', async function (next) {
   if (this.isModified('password')) {
-    this.password = await bcrypt.hash(this.password, 10); // Reduced to 10 for serverless performance
+    this.password = await bcrypt.hash(this.password, 10);
   }
   next();
 });
 
 const AdminModel = mongoose.model('Admin', adminSchema);
 
-async function init() {
-  const count = await AdminModel.countDocuments({ email: 'superadmin@schoolerp.com' });
-  if (count === 0) {
-    await AdminModel.create({
-      name: 'Super Admin',
-      email: 'superadmin@schoolerp.com',
-      password: 'SuperAdmin123!',
-      role: 'superadmin',
-      schoolId: new mongoose.Types.ObjectId(),
+async function initAdmin() {
+  try {
+    await mongoose.connection.once('open', async () => {
+      const count = await AdminModel.countDocuments({ email: 'superadmin@example.com' });
+      if (count === 0) {
+        await AdminModel.create({
+          name: 'Super Admin',
+          email: 'superadmin@example.com',
+          password: 'SuperAdmin123!',
+          role: 'superadmin',
+          schoolId: new mongoose.Types.ObjectId(),
+        });
+        logger.info('Super Admin created');
+      }
     });
+  } catch (error) {
+    logger.error(`Failed to initialize superadmin: ${error.message}`);
   }
 }
 
-init();
+if (mongoose.connection.readyState !== 1) {
+  mongoose.connection.on('connected', initAdmin);
+} else {
+  initAdmin();
+}
 
 module.exports = AdminModel;

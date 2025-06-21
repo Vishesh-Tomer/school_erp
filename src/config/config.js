@@ -1,6 +1,7 @@
 const dotenv = require('dotenv');
 const path = require('path');
 const Joi = require('joi');
+const logger = require('./logger');
 
 const envFilePath = path.resolve(__dirname, '../../.env');
 const dotenvResult = dotenv.config({ path: envFilePath });
@@ -27,11 +28,15 @@ const envVarsSchema = Joi.object()
   })
   .unknown();
 
+
+
 const { value: envVars, error } = envVarsSchema.prefs({ errors: { label: 'key' } }).validate(process.env);
 
 if (error) {
   throw new Error(`Config validation error: ${error.message}`);
 }
+
+
 
 module.exports = {
   env: envVars.NODE_ENV,
@@ -46,6 +51,10 @@ module.exports = {
       connectTimeoutMS: 10000,
       socketTimeoutMS: 45000,
     },
+  },
+  auth: {
+    basicAuthUsername: process.env.BASIC_AUTH_USERNAME,
+    basicAuthPassword: process.env.BASIC_AUTH_PASSWORD,
   },
   jwt: {
     secret: envVars.JWT_SECRET,

@@ -13,6 +13,9 @@ const { authLimiter } = require('./middlewares/rateLimiter');
 const routes = require('./routes/v1');
 const { errorConverter, errorHandler } = require('./middlewares/error');
 const ApiError = require('./utils/ApiError');
+const logger = require('./config/logger');
+const mongoose = require('mongoose'); // Add missing import
+
 const app = express();
 
 if (config.env !== 'test') {
@@ -21,9 +24,7 @@ if (config.env !== 'test') {
 }
 
 app.use(helmet());
-
 app.use(express.json());
-
 app.use(express.urlencoded({ extended: true }));
 
 app.use([
@@ -37,41 +38,62 @@ app.use([
   },
 ]);
 
-// Enable gzip compression
 app.use(compression());
-
-// Enable CORS
 app.use(cors());
 app.use(cors({ origin: '*' }));
 
-// Add Prometheus metrics middleware
-app.use(promMiddleware({
-  metricsPath: '/metrics',
-  collectDefaultMetrics: true,
-  requestDurationBuckets: [0.1, 0.5, 1, 1.5],
-}));
+app.use(
+  promMiddleware({
+    metricsPath: '/metrics',
+    collectDefaultMetrics: true,
+    requestDurationBuckets: [0.1, 0.5, 1, 1.5],
+  })
+);
 
-// Initialize Passport and JWT strategy
 app.use(passport.initialize());
 passport.use('jwt', jwtStrategy);
 
-// Limit repeated failed requests to auth endpoints
 if (config.env === 'production') {
   app.use('/v1/auth', authLimiter);
 }
 
-// API routes
+// MongoDB connection check middleware
+app.use(async (req, res, next) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      logger.warn('MongoDB not connected, attempting to reconnect...');
+      await mongoose.connect(config.mongoose.url, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        serverSelectionTimeoutMS: 5000,
+        maxPoolSize: 5,
+        connectTimeoutMS: 10000,
+        socketTimeoutMS: 20000,
+      });
+      logger.info('MongoDB reconnected');
+    }
+    next();
+  } catch (error) {
+    logger.error(`MongoDB connection middleware error: ${error.message}`);
+    next(new ApiError(httpStatus.SERVICE_UNAVAILABLE, 'Database unavailable, please try again later'));
+  }
+});
+
+// Mock CSRF for tests
+if (config.env === 'test') {
+  app.use((req, res, next) => {
+    req.csrfToken = () => 'dummy-csrf-token';
+    next();
+  });
+}
+
 app.use('/v1', routes);
 
-// Send back a 404 error for any unknown API request
 app.use((req, res, next) => {
   next(new ApiError(httpStatus.NOT_FOUND, 'Not found'));
 });
 
-// Convert errors to ApiError, if needed
 app.use(errorConverter);
-
-// Handle errors
 app.use(errorHandler);
 
 module.exports = app;

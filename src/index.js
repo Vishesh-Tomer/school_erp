@@ -5,7 +5,8 @@ const app = require('./app');
 
 let server;
 
-const connectDB = async (retries = 10, delay = 5000) => {
+const connectDB = async (retries = 5, delay = 3000) => {
+  mongoose.set('bufferCommands', false); // Disable buffering globally
   let attempt = 1;
   while (attempt <= retries) {
     try {
@@ -13,23 +14,23 @@ const connectDB = async (retries = 10, delay = 5000) => {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         serverSelectionTimeoutMS: 5000,
-        maxPoolSize: 10,
+        maxPoolSize: 5,
         connectTimeoutMS: 10000,
-        socketTimeoutMS: 45000,
-        bufferCommands: false, // Disable Mongoose buffering
+        socketTimeoutMS: 20000,
         retryWrites: true,
         retryReads: true,
+        autoIndex: config.env !== 'production', // Disable autoIndex in production
       });
-      logger.info(`MongoDB Connected after ${attempt} attempt(s)`);
-      return;
+      logger.info(`MongoDB connected after ${attempt} attempt(s)`);
+      return true;
     } catch (err) {
       logger.error(`MongoDB Connection Attempt ${attempt} Failed: ${err.message}`);
       if (attempt === retries) {
         logger.error('Max retries reached. Exiting...');
-        process.exit(1);
+        throw err;
       }
-      await new Promise((resolve) => setTimeout(resolve, delay));
-      attempt += 1;
+      await new Promise(resolve => setTimeout(resolve, delay));
+      attempt++;
     }
   }
 };
@@ -38,7 +39,7 @@ const startServer = async () => {
   try {
     await connectDB();
     server = app.listen(config.port, () => {
-      logger.info(`Listening to port ${config.port}`);
+      logger.info(`Listening on port ${config.port}`);
     });
   } catch (err) {
     logger.error(`Failed to start server: ${err.message}`);
@@ -46,30 +47,37 @@ const startServer = async () => {
   }
 };
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+  res.status(200).json({ status: 'OK', db: dbStatus, uptime: process.uptime() });
+});
+
 startServer();
 
-const exitHandler = () => {
+const exitHandler = async () => {
   if (server) {
-    server.close(() => {
+    server.close(async () => {
       logger.info('Server closed');
+      await mongoose.connection.close();
+      logger.info('MongoDB connection closed');
       process.exit(1);
     });
   } else {
+    await mongoose.connection.close();
     process.exit(1);
   }
 };
 
-const unexpectedErrorHandler = (error) => {
+const unexpectedErrorHandler = async (error) => {
   logger.error(`Unexpected error: ${error.message}`);
-  exitHandler();
+  await exitHandler();
 };
 
 process.on('uncaughtException', unexpectedErrorHandler);
 process.on('unhandledRejection', unexpectedErrorHandler);
 
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
   logger.info('SIGTERM received');
-  if (server) {
-    server.close();
-  }
+  await exitHandler();
 });

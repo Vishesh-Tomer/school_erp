@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { toJSON } = require('./plugins');
+const logger = require('../config/logger'); // Add import
 
 const roleSchema = mongoose.Schema(
   {
@@ -24,22 +25,33 @@ roleSchema.plugin(toJSON);
 
 const RoleModel = mongoose.model('Role', roleSchema);
 
-async function init() {
-  const count = await RoleModel.countDocuments();
-  if (count === 0) {
-    await RoleModel.create([
-      {
-        name: 'superadmin',
-        permissions: ['manageAdmins', 'getAdmins', 'updateProfile', 'changePassword', 'manageRoles'],
-      },
-      {
-        name: 'admin',
-        permissions: ['updateProfile', 'changePassword'],
-      },
-    ]);
+async function initRoles() {
+  try {
+    await mongoose.connection.once('open', async () => {
+      const count = await RoleModel.countDocuments();
+      if (count === 0) {
+        await RoleModel.create([
+          {
+            name: 'superadmin',
+            permissions: ['manageAdmins', 'getAdmins', 'updateProfile', 'changePassword', 'manageRoles'],
+          },
+          {
+            name: 'admin',
+            permissions: ['updateProfile', 'changePassword'],
+          },
+        ]);
+        logger.info('Roles initialized');
+      }
+    });
+  } catch (error) {
+    logger.error(`Failed to initialize roles: ${error.message}`);
   }
 }
 
-init();
+if (mongoose.connection.readyState !== 1) {
+  mongoose.connection.on('connected', initRoles);
+} else {
+  initRoles();
+}
 
 module.exports = RoleModel;
