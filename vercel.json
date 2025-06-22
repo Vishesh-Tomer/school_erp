@@ -22,9 +22,7 @@
     "api/index.js": {
       "memory": 1024,
       "maxDuration": 60,
-      "includeFiles": [
-        "src/docs/**"
-      ]
+      "includeFiles": "src/docs/**"
     }
   },
   "build": {
@@ -32,5 +30,19 @@
       "SHARP_IGNORE_GLOBALLY": "true",
       "NODE_ENV": "production"
     }
-  }
+  },
+  "headers": [
+    {
+      "source": "/v1/docs/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/v1/docs/json",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    }
+  ]
 }
