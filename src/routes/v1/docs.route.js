@@ -9,7 +9,10 @@ const router = express.Router();
 
 const specs = swaggerJsdoc({
   swaggerDefinition,
-  apis: ['src/docs/*.yml', 'src/routes/v1/*.js'],
+  apis: [
+    path.join(__dirname, '../../docs/*.yml'), // Absolute path to YAML files
+    path.join(__dirname, './*.js'), // Absolute path to route files
+  ],
 });
 
 // Apply Basic Auth in production
