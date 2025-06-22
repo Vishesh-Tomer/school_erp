@@ -4,6 +4,7 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDefinition = require('../../docs/swaggerDef');
 const basicAuth = require('../../middlewares/basicAuth');
 const config = require('../../config/config');
+const path = require('path'); // Add this if using path.resolve
 
 const router = express.Router();
 
@@ -17,20 +18,21 @@ if (config.env === 'production') {
   router.use(basicAuth);
 }
 
-// Serve Swagger UI with Basic Auth configuration
+// Serve Swagger UI static files explicitly
+router.use('/swagger-ui', express.static(path.join(__dirname, '../../../node_modules/swagger-ui-dist')));
 router.use('/', swaggerUi.serve);
 router.get('/', swaggerUi.setup(specs, {
   explorer: true,
   swaggerOptions: {
-    persistAuthorization: true, // Retain credentials after page refresh
+    persistAuthorization: true,
     preauthorizeApiKey: {
       basicAuth: {
         authType: 'basic',
-        username: '', // Leave empty; user will input
-        password: '', // Leave empty; user will input
+        username: '',
+        password: '',
       },
     },
-    security: [{ basicAuth: [] }], // Apply Basic Auth to all endpoints
+    security: [{ basicAuth: [] }],
   },
 }));
 
