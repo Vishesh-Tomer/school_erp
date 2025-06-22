@@ -1,16 +1,27 @@
+// src/routes/v1/docs.route.js
 const express = require('express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDefinition = require('../../docs/swaggerDef');
 const basicAuth = require('../../middlewares/basicAuth');
 const config = require('../../config/config');
-const path = require('path'); // Add this if using path.resolve
+const path = require('path');
+const logger = require('../../config/logger'); // Add logger
 
 const router = express.Router();
 
 const specs = swaggerJsdoc({
   swaggerDefinition,
-  apis: ['src/docs/*.yml', 'src/routes/v1/*.js'],
+  apis: [
+    path.resolve(__dirname, '../../docs/*.yml'), // Absolute path
+    path.resolve(__dirname, './*.js'), // Absolute path for routes
+  ],
+});
+
+// Log spec generation for debugging
+logger.info('Swagger specs generated:', {
+  paths: Object.keys(specs.paths || {}),
+  operations: Object.values(specs.paths || {}).flatMap(p => Object.keys(p)).length,
 });
 
 // Apply Basic Auth in production
@@ -18,8 +29,6 @@ if (config.env === 'production') {
   router.use(basicAuth);
 }
 
-// Serve Swagger UI static files explicitly
-router.use('/swagger-ui', express.static(path.join(__dirname, '../../../node_modules/swagger-ui-dist')));
 router.use('/', swaggerUi.serve);
 router.get('/', swaggerUi.setup(specs, {
   explorer: true,
@@ -36,8 +45,8 @@ router.get('/', swaggerUi.setup(specs, {
   },
 }));
 
-// Serve Swagger JSON for debugging
 router.get('/json', (req, res) => {
+  logger.info('Serving Swagger JSON spec');
   res.json(specs);
 });
 

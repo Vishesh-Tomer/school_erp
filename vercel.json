@@ -18,6 +18,15 @@
       "dest": "/api/index.js"
     }
   ],
+  "functions": {
+    "api/index.js": {
+      "memory": 1024,
+      "maxDuration": 60,
+      "includeFiles": [
+        "src/docs/**"
+      ]
+    }
+  },
   "env": {
     "NODE_ENV": "production",
     "SHARP_IGNORE_GLOBALLY": "true",
