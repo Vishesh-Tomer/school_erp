@@ -4,36 +4,38 @@ const config = require('./config/config');
 const app = require('./app');
 const https = require('https');
 const fs = require('fs');
+const retry = require('async-retry');
 
 let server;
 
-const connectDB = async (retries = 10, delay = 5000) => {
-  let attempt = 1;
-  while (attempt <= retries) {
-    try {
+const connectDB = async (retries = 5, delay = 5000) => {
+  return retry(
+    async () => {
       await mongoose.connect(config.mongoose.url, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         serverSelectionTimeoutMS: 5000,
-        maxPoolSize: 10,
+        maxPoolSize: 5,
         connectTimeoutMS: 10000,
-        socketTimeoutMS: 45000,
-        bufferCommands: false,
+        socketTimeoutMS: 20000,
         retryWrites: true,
         retryReads: true,
       });
-      logger.info(`MongoDB Connected after ${attempt} attempt(s)`);
-      return;
-    } catch (err) {
-      logger.error(`MongoDB Connection Attempt ${attempt} Failed: ${err.message}`);
-      if (attempt === retries) {
-        logger.error('Max retries reached. Exiting...');
-        process.exit(1);
-      }
-      await new Promise((resolve) => setTimeout(resolve, delay));
-      attempt += 1;
+      logger.info('MongoDB Connected');
+    },
+    {
+      retries,
+      factor: 2,
+      minTimeout: delay,
+      maxTimeout: 30000,
+      onRetry: (err, attempt) => {
+        logger.warn(`MongoDB Connection Attempt ${attempt} Failed: ${err.message}`);
+      },
     }
-  }
+  ).catch((err) => {
+    logger.error(`MongoDB Connection Failed after ${retries} retries: ${err.message}`);
+    process.exit(1);
+  });
 };
 
 const startServer = async () => {
@@ -72,13 +74,23 @@ const exitHandler = () => {
   }
 };
 
+
+// src/index.js
 const unexpectedErrorHandler = (error) => {
   logger.error(`Unexpected error: ${error.message}`);
-  exitHandler();
+  logger.error(error.stack);
+  if (server) {
+    server.close(() => {
+      logger.info('Server closed due to unhandled error');
+    });
+  }
 };
 
 process.on('uncaughtException', unexpectedErrorHandler);
-process.on('unhandledRejection', unexpectedErrorHandler);
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error(`Unhandled Rejection at: ${promise}, reason: ${reason.message || reason}`);
+  logger.error(reason.stack);
+});
 
 process.on('SIGTERM', () => {
   logger.info('SIGTERM received');
@@ -86,3 +98,8 @@ process.on('SIGTERM', () => {
     server.close();
   }
 });
+
+
+mongoose.connection.on('connected', () => logger.info('MongoDB: Connected'));
+mongoose.connection.on('disconnected', () => logger.warn('MongoDB: Disconnected'));
+mongoose.connection.on('error', (err) => logger.error(`MongoDB: Error - ${err.message}`));

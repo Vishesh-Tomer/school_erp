@@ -61,20 +61,11 @@ if (config.env === 'production') {
 app.use(async (req, res, next) => {
   try {
     if (mongoose.connection.readyState !== 1) {
-      logger.warn('MongoDB not connected, attempting to reconnect...');
-      await mongoose.connect(config.mongoose.url, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        serverSelectionTimeoutMS: 5000,
-        maxPoolSize: 5,
-        connectTimeoutMS: 10000,
-        socketTimeoutMS: 20000,
-      });
-      logger.info('MongoDB reconnected');
+      logger.warn('MongoDB not connected; relying on initial connection');
     }
     next();
   } catch (error) {
-    logger.error(`MongoDB connection middleware error: ${error.message}`);
+    logger.error(`MongoDB middleware error: ${error.message}`);
     next(new ApiError(httpStatus.SERVICE_UNAVAILABLE, 'Database unavailable, please try again later'));
   }
 });
