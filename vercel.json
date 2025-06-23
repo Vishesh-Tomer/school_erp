@@ -39,7 +39,6 @@
     "env": {
       "SHARP_IGNORE_GLOBALLY": "true",
       "NODE_ENV": "production"
-    },
-    "include": ["node_modules/swagger-ui-dist/**/*"]
+    }
   }
 }
