@@ -12,8 +12,9 @@ const router = express.Router();
 const specs = swaggerJsdoc({
   swaggerDefinition,
   apis: [
-    path.resolve(__dirname, '../../docs/*.yml'),
-    path.resolve(__dirname, './*.js'),
+    path.join(__dirname, '../../docs/*.yml'),
+    path.join(__dirname, '../../routes/v1/*.js'),
+
   ],
 });
 
