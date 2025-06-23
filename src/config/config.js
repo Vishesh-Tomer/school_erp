@@ -28,8 +28,6 @@ const envVarsSchema = Joi.object()
   })
   .unknown();
 
-
-
 const { value: envVars, error } = envVarsSchema.prefs({ errors: { label: 'key' } }).validate(process.env);
 
 if (error) {

@@ -14,7 +14,7 @@ const routes = require('./routes/v1');
 const { errorConverter, errorHandler } = require('./middlewares/error');
 const ApiError = require('./utils/ApiError');
 const logger = require('./config/logger');
-const mongoose = require('mongoose'); // Add missing import
+const mongoose = require('mongoose');
 
 const app = express();
 
@@ -57,7 +57,6 @@ if (config.env === 'production') {
   app.use('/v1/auth', authLimiter);
 }
 
-// MongoDB connection check middleware
 app.use(async (req, res, next) => {
   try {
     if (mongoose.connection.readyState !== 1) {
@@ -70,7 +69,6 @@ app.use(async (req, res, next) => {
   }
 });
 
-// Mock CSRF for tests
 if (config.env === 'test') {
   app.use((req, res, next) => {
     req.csrfToken = () => 'dummy-csrf-token';
